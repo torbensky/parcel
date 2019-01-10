@@ -20,6 +20,7 @@
     "@parcel/transformer-babel": "^2.0.0",
     "@parcel/transformer-css": "^2.0.0",
     "@parcel/transformer-js": "^2.0.0",
+    "@parcel/transformer-postcss": "^2.0.0",
     "@parcel/transformer-terser": "^2.0.0"
   }
 }

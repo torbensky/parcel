@@ -1,0 +1,19 @@
+{
+  "name": "@parcel/postcss-transformer",
+  "version": "2.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parcel-bundler/parcel.git"
+  },
+  "main": "src/PostCSSTransformer.js",
+  "dependencies": {
+    "@parcel/plugin": "^2.0.0",
+    "@parcel/utils": "^2.0.0",
+    "postcss": "^7.0.5",
+    "semver": "^5.4.1"
+  },
+  "devDependencies": {
+    "@parcel/eslint-config": "1.10.3"
+  }
+}
