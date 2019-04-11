@@ -1,7 +1,35 @@
 const assert = require('assert');
 const path = require('path');
 const fs = require('@parcel/fs');
-const {bundle, run, assertBundleTree, rimraf, ncp} = require('./utils');
+const {
+  bundle,
+  run,
+  assertBundles,
+  assertBundleTree,
+  rimraf,
+  ncp
+} = require('./utils');
+
+describe('css in v2', () => {
+  it('should produce two bundles when importing a CSS file', async function() {
+    let b = await bundle(path.join(__dirname, '/integration/css/index.js'));
+
+    await assertBundles(b, [
+      {
+        name: 'index.js',
+        assets: ['index.js', 'local.js']
+      },
+      {
+        name: 'local.css',
+        assets: ['index.css', 'local.css']
+      }
+    ]);
+
+    let output = await run(b);
+    assert.equal(typeof output, 'function');
+    assert.equal(output(), 3);
+  });
+});
 
 describe.skip('css', function() {
   it('should produce two bundles when importing a CSS file', async function() {

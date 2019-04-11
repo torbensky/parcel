@@ -11,14 +11,14 @@ const PRELUDE = fs
 export default new Packager({
   async package(bundle) {
     let promises = [];
-    bundle.assetGraph.traverseAssets(asset => {
-      promises.push(asset.getOutput());
+    bundle.assetGraph.traverseAssetsWithReferences(({type, asset}) => {
+      promises.push(type === 'asset' ? asset.getOutput() : Promise.resolve());
     });
     let outputs = await Promise.all(promises);
 
     let assets = '';
     let i = 0;
-    bundle.assetGraph.traverseAssets(asset => {
+    bundle.assetGraph.traverseAssetsWithReferences(({asset}) => {
       let deps = {};
 
       let dependencies = bundle.assetGraph.getDependencies(asset);
@@ -34,7 +34,7 @@ export default new Packager({
       wrapped +=
         JSON.stringify(asset.id) +
         ':[function(require,module,exports) {\n' +
-        (output.code || '') +
+        ((output && output.code) || '') +
         '\n},';
       wrapped += JSON.stringify(deps);
       wrapped += ']';

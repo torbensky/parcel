@@ -33,6 +33,7 @@ module.exports = {
   rules: {
     '@parcel/no-self-package-imports': 'error',
     'flowtype/space-after-type-colon': 'off', // conflicts with prettier
+    'flowtype/generic-spacing': 'off', // conflicts with prettier
     'import/first': 'error',
     'import/newline-after-import': 'error',
     'import/no-extraneous-dependencies': 'error',
