@@ -194,7 +194,11 @@ export default class AssetGraph extends Graph<AssetGraphNode>
     }
 
     // Add a file node for the file that the transformer request resolved to
-    fileNodes.push(nodeFromFile({filePath: req.filePath}));
+    fileNodes.push(
+      nodeFromFile({
+        filePath: req.filePath
+      })
+    );
 
     let assetNodes = cacheEntry.assets.map(asset => nodeFromAsset(asset));
     let {added, removed} = this.replaceNodesConnectedTo(requestNode, [
@@ -281,6 +285,23 @@ export default class AssetGraph extends Graph<AssetGraphNode>
     }, startNode);
   }
 
+  traverseAssetsWithReferences(
+    visit: GraphTraversalCallback<
+      | {|+type: 'asset', asset: Asset|}
+      | {|+type: 'asset_reference', asset: Asset|},
+      AssetGraphNode
+    >,
+    startNode: ?AssetGraphNode
+  ): ?AssetGraphNode {
+    return this.traverse((node, ...args) => {
+      if (node.type === 'asset') {
+        return visit({type: 'asset', asset: node.value}, ...args);
+      } else if (node.type === 'asset_reference') {
+        return visit({type: 'asset_reference', asset: node.value}, ...args);
+      }
+    }, startNode);
+  }
+
   createBundle(asset: Asset): Bundle {
     let assetNode = this.getNode(asset.id);
     if (!assetNode) {
@@ -294,16 +315,16 @@ export default class AssetGraph extends Graph<AssetGraphNode>
       value: null
     });
 
-    graph.addEdge({from: 'root', to: assetNode.id});
+    graph.addEdge({
+      from: 'root',
+      to: assetNode.id
+    });
     return {
       id: 'bundle:' + asset.id,
       type: asset.type,
       assetGraph: graph,
       env: asset.env,
-      stats: {
-        size: 0,
-        time: 0
-      }
+      stats: {size: 0, time: 0}
     };
   }
 

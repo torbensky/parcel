@@ -61,6 +61,7 @@ export type Engines = {
 export type Target = {|
   name: string,
   distPath?: FilePath,
+  distPathType?: string,
   env: Environment
 |};
 
@@ -401,6 +402,13 @@ export interface AssetGraph extends Graph<AssetGraphNode> {
   removeAsset(asset: Asset): void;
   traverseAssets(
     visit: GraphTraversalCallback<Asset, AssetGraphNode>
+  ): ?AssetGraphNode;
+  traverseAssetsWithReferences(
+    visit: GraphTraversalCallback<
+      | {|+type: 'asset', asset: Asset|}
+      | {|+type: 'asset_reference', asset: Asset|},
+      AssetGraphNode
+    >
   ): ?AssetGraphNode;
 }
 
