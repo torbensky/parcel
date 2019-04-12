@@ -18,7 +18,14 @@ export default new Packager({
 
     let assets = '';
     let i = 0;
-    bundle.assetGraph.traverseAssetsWithReferences(({asset}) => {
+    bundle.assetGraph.traverseAssetsWithReferences(({type, asset}) => {
+      if (type === 'asset_reference' && asset.type === 'js') {
+        // if this is a reference to another javascript asset, we should not include
+        // either its output or a stub, as its contents should already be loaded
+        i++;
+        return;
+      }
+
       let deps = {};
 
       let dependencies = bundle.assetGraph.getDependencies(asset);
