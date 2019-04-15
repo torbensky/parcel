@@ -11,24 +11,31 @@ const PRELUDE = fs
 export default new Packager({
   async package(bundle) {
     let promises = [];
-    bundle.assetGraph.traverseAssets(asset => {
-      promises.push(asset.getOutput());
+    bundle.assetGraph.traverse(node => {
+      if (node.type === 'asset') {
+        promises.push(node.value.getOutput());
+      }
     });
     let outputs = await Promise.all(promises);
 
     let assets = '';
     let i = 0;
     let first = true;
-    bundle.assetGraph.traverseAssetsWithReferences(({type, asset}) => {
-      if (type === 'asset_reference' && asset.type === 'js') {
+    bundle.assetGraph.traverse(node => {
+      if (node.type !== 'asset' && node.type !== 'asset_reference') {
+        return;
+      }
+
+      let asset = node.value;
+      if (node.type === 'asset_reference' && asset.type === 'js') {
         // if this is a reference to another javascript asset, we should not include
         // either its output or a stub, as its contents should already be loaded
         return;
       }
 
       let wrapped = first ? '' : ',';
-      if (type === 'asset_reference') {
-        wrapped += JSON.stringify(asset.id) + ':[0,{}]';
+      if (node.type === 'asset_reference') {
+        wrapped += JSON.stringify(asset.id) + ':[null,{}]';
       } else {
         let deps = {};
         let dependencies = bundle.assetGraph.getDependencies(asset);

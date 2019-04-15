@@ -285,23 +285,6 @@ export default class AssetGraph extends Graph<AssetGraphNode>
     }, startNode);
   }
 
-  traverseAssetsWithReferences(
-    visit: GraphTraversalCallback<
-      | {|+type: 'asset', asset: Asset|}
-      | {|+type: 'asset_reference', asset: Asset|},
-      AssetGraphNode
-    >,
-    startNode: ?AssetGraphNode
-  ): ?AssetGraphNode {
-    return this.traverse((node, ...args) => {
-      if (node.type === 'asset') {
-        return visit({type: 'asset', asset: node.value}, ...args);
-      } else if (node.type === 'asset_reference') {
-        return visit({type: 'asset_reference', asset: node.value}, ...args);
-      }
-    }, startNode);
-  }
-
   createBundle(asset: Asset): Bundle {
     let assetNode = this.getNode(asset.id);
     if (!assetNode) {
