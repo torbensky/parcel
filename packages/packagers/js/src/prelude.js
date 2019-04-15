@@ -1,5 +1,5 @@
 // modules are defined as an array
-// [ 0 | module function, map of requires ]
+// [ ?module function, map of requires ]
 //
 // map of requires is short require name -> numeric require
 //
@@ -47,8 +47,8 @@ parcelRequire = function(modules, cache, entry, globalName) {
 
       var module = (cache[name] = new newRequire.Module(name));
 
-      // Handle the case the function is falsy (such as the value `0`) in the case
-      // the module should be a stub and doesn't import/export values.
+      // Handle the case the function is falsy in the case the module should be
+      // a stub and doesn't import/export values.
       var moduleFn = modules[name][0];
       if (moduleFn) {
         moduleFn.call(

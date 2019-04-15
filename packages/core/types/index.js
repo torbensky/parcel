@@ -403,13 +403,6 @@ export interface AssetGraph extends Graph<AssetGraphNode> {
   traverseAssets(
     visit: GraphTraversalCallback<Asset, AssetGraphNode>
   ): ?AssetGraphNode;
-  traverseAssetsWithReferences(
-    visit: GraphTraversalCallback<
-      | {|+type: 'asset', asset: Asset|}
-      | {|+type: 'asset_reference', asset: Asset|},
-      AssetGraphNode
-    >
-  ): ?AssetGraphNode;
 }
 
 export interface BundleGraph extends Graph<BundleGraphNode> {
