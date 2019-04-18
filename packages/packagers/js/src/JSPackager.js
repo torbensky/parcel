@@ -29,13 +29,15 @@ export default new Packager({
       let asset = node.value;
       if (node.type === 'asset_reference' && asset.type === 'js') {
         // if this is a reference to another javascript asset, we should not include
-        // either its output or a stub, as its contents should already be loaded
+        // its output, as its contents should already be loaded.
         return;
       }
 
       let wrapped = first ? '' : ',';
       if (node.type === 'asset_reference') {
-        wrapped += JSON.stringify(asset.id) + ':[null,{}]';
+        wrapped +=
+          JSON.stringify(asset.id) +
+          ':[function(require,module,exports) {},{}]';
       } else {
         let deps = {};
         let dependencies = bundle.assetGraph.getDependencies(asset);
