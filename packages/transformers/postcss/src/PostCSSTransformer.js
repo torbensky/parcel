@@ -1,13 +1,10 @@
 // @flow
+
 import {Transformer} from '@parcel/plugin';
-import localRequire from '@parcel/utils/localRequire';
-import loadExternalPlugins from '@parcel/utils/loadExternalPlugins';
+import localRequire from '@parcel/utils/src/localRequire';
+import loadExternalPlugins from '@parcel/utils/src/loadExternalPlugins';
 import postcss from 'postcss';
 import semver from 'semver';
-
-const URL_RE = /url\s*\("?(?![a-z]+:)/;
-const IMPORT_RE = /@import/;
-const PROTOCOL_RE = /^[a-z]+:/;
 
 export default new Transformer({
   async getConfig(asset, opts) {
@@ -31,6 +28,7 @@ export default new Transformer({
       getJSON: (filename, json) => (asset.meta.cssModules = json)
     };
 
+    config.plugins;
     if (config.plugins && config.plugins['postcss-modules']) {
       postcssModulesConfig = Object.assign(
         config.plugins['postcss-modules'],
@@ -39,6 +37,7 @@ export default new Transformer({
       delete config.plugins['postcss-modules'];
     }
 
+    // $FlowFixMe
     config.plugins = await loadExternalPlugins(config.plugins, asset.filePath);
 
     if (config.modules || enableModules) {
@@ -50,11 +49,12 @@ export default new Transformer({
     }
 
     if (opts.minify) {
-      let [cssnano, {version}] = await Promise.all(
-        ['cssnano', 'cssnano/package.json'].map(name =>
-          localRequire(name, asset.filePath).catch(() => require(name))
+      let [cssnano, {version}] = await Promise.all([
+        localRequire('cssnano', asset.filePath).catch(() => require('cssnano')),
+        localRequire('cssnano/package.json', asset.filePath).catch(() =>
+          require('cssnano/package.json')
         )
-      );
+      ]);
       config.plugins.push(
         cssnano(
           (await asset.getConfig(['cssnano.config.js'])) || {
@@ -80,7 +80,6 @@ export default new Transformer({
     return {
       type: 'postcss',
       version: '7.0.0',
-      isDirty: false,
       program: postcss.parse(asset.code, {
         from: asset.filePath,
         to: asset.filePath
@@ -93,21 +92,28 @@ export default new Transformer({
       return [asset];
     }
 
-    let res = await postcss(config.plugins).process(asset.ast.program, config);
+    let {root} = await postcss(config.plugins).process(
+      asset.ast.program,
+      config
+    );
+    asset.ast.program = root;
 
-    asset.code = res.css;
-    asset.ast.isDirty = false;
-    return [asset];
+    let assets = [asset];
+    if (asset.meta.cssModules) {
+      assets.push({
+        type: 'js',
+        code:
+          'module.exports = ' +
+          JSON.stringify(asset.meta.cssModules, null, 2) +
+          ';'
+      });
+    }
+    return assets;
   },
 
   generate(asset) {
-    let code;
-    if (!asset.ast.isDirty) {
-      code = asset.code;
-    } else {
-      code = '';
-      postcss.stringify(asset.ast.program, c => (code += c));
-    }
+    let code = '';
+    postcss.stringify(asset.ast.program, c => (code += c));
 
     return {
       code

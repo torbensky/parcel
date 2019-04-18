@@ -209,6 +209,7 @@ async function run(bundleGraph, globals, opts = {}) {
   }
 
   vm.createContext(ctx);
+  console.log('running', await fs.readFile(bundle.filePath, 'utf8'));
   vm.runInContext(await fs.readFile(bundle.filePath), ctx);
 
   if (opts.require !== false) {
